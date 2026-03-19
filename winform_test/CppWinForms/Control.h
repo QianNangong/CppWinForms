@@ -27,6 +27,8 @@ public:
 	long Anchor;
 	__declspec(property(get = get_Visible, put = put_Visible))
 	bool Visible;
+	__declspec(property(get = get_Dock, put = put_Dock))
+	long Dock;
 
 	_bstr_t get_Text() const;
 	void    put_Text(const wchar_t* value);
@@ -42,6 +44,8 @@ public:
 	void    put_Anchor(long v)  { PutLongProp(L"Anchor", v); }
 	bool    get_Visible() const;
 	void    put_Visible(bool v);
+	long    get_Dock() const    { return GetLongProp(L"Dock"); }
+	void    put_Dock(long v)    { PutLongProp(L"Dock", v); }
 
 	void AddEventHandler(const wchar_t* eventName, std::function<void()> callback);
 

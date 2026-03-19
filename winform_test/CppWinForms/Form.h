@@ -15,6 +15,7 @@ public:
 
 	void AddChild(Control& child);
 	void CenterChild(Control& child);
+	void SetMainMenuStrip(Control& menuStrip);
 
 	long get_StartPosition() const { return GetLongProp(L"StartPosition"); }
 	void put_StartPosition(long v) { PutLongProp(L"StartPosition", v); }

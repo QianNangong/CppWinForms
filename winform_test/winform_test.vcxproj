@@ -139,6 +139,8 @@
     <ClCompile Include="CppWinForms\Control.cpp" />
     <ClCompile Include="CppWinForms\Form.cpp" />
     <ClCompile Include="CppWinForms\Button.cpp" />
+    <ClCompile Include="CppWinForms\MenuStrip.cpp" />
+    <ClCompile Include="CppWinForms\ListView.cpp" />
     <ClCompile Include="CppWinForms\Application.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
@@ -150,6 +152,8 @@
     <ClInclude Include="CppWinForms\Control.h" />
     <ClInclude Include="CppWinForms\Form.h" />
     <ClInclude Include="CppWinForms\Button.h" />
+    <ClInclude Include="CppWinForms\MenuStrip.h" />
+    <ClInclude Include="CppWinForms\ListView.h" />
     <ClInclude Include="CppWinForms\Application.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

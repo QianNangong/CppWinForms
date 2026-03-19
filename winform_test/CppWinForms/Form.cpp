@@ -82,4 +82,14 @@ void Form::CenterChild(Control& child)
 	child.Anchor = 0;
 }
 
+void Form::SetMainMenuStrip(Control& menuStrip)
+{
+	_variant_t menuVar = menuStrip.variant();
+	SAFEARRAY* args = __Internal::MakeArgArray({ &menuVar });
+	type_->InvokeMember_3(
+		_bstr_t(L"MainMenuStrip"), __Internal::kSetProperty,
+		nullptr, variant_, args);
+	SafeArrayDestroy(args);
+}
+
 } // namespace CppWinForms
