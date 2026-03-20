@@ -13,7 +13,6 @@ public:
 
 	Form();
 
-	void AddChild(Control& child);
 	void CenterChild(Control& child);
 	void SetMainMenuStrip(Control& menuStrip);
 

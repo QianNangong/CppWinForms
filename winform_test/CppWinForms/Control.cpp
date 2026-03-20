@@ -43,15 +43,12 @@ void Control::put_Text(const wchar_t* value)
 
 bool Control::get_Visible() const
 {
-	_variant_t result;
-	__Internal::GetProperty(dispatch_, L"Visible", &result);
-	return result.boolVal == VARIANT_TRUE;
+	return GetBoolProp(L"Visible");
 }
 
 void Control::put_Visible(bool v)
 {
-	__Internal::PutProperty(dispatch_, L"Visible",
-		_variant_t(v ? VARIANT_TRUE : VARIANT_FALSE, VT_BOOL));
+	PutBoolProp(L"Visible", v);
 }
 
 long Control::GetLongProp(const wchar_t* name) const
@@ -64,6 +61,43 @@ long Control::GetLongProp(const wchar_t* name) const
 void Control::PutLongProp(const wchar_t* name, long value)
 {
 	__Internal::PutProperty(dispatch_, name, _variant_t(value));
+}
+
+bool Control::GetBoolProp(const wchar_t* name) const
+{
+	_variant_t result;
+	__Internal::GetProperty(dispatch_, name, &result);
+	return result.boolVal == VARIANT_TRUE;
+}
+
+void Control::PutBoolProp(const wchar_t* name, bool value)
+{
+	__Internal::PutProperty(dispatch_, name,
+		_variant_t(value ? VARIANT_TRUE : VARIANT_FALSE, VT_BOOL));
+}
+
+void Control::AddChild(Control& child)
+{
+	_variant_t controlsObj = type_->InvokeMember_3(
+		_bstr_t(L"Controls"), __Internal::kGetProperty,
+		nullptr, variant_, nullptr);
+	mscorlib::_TypePtr controlsType =
+		__Internal::GetTypeFromVariant(controlsObj);
+
+	_variant_t childVar = child.variant();
+	SAFEARRAY* args = __Internal::MakeArgArray({ &childVar });
+	controlsType->InvokeMember_3(
+		_bstr_t(L"Add"), __Internal::kInvokeMethod,
+		nullptr, controlsObj, args);
+	SafeArrayDestroy(args);
+}
+
+void Control::Attach(const _variant_t& managedObject)
+{
+	variant_ = managedObject;
+	if (variant_.vt == VT_DISPATCH && variant_.pdispVal != nullptr)
+		dispatch_ = variant_.pdispVal;
+	type_ = __Internal::GetTypeFromVariant(variant_);
 }
 
 void Control::AddEventHandler(const wchar_t* eventName, std::function<void()> callback)

@@ -80,6 +80,25 @@ SAFEARRAY* MakeArgArray(std::initializer_list<const _variant_t*> args)
 	return sa;
 }
 
+void AddToCollection(
+	const _variant_t& owner,
+	const wchar_t* collectionProp,
+	const _variant_t& item)
+{
+	mscorlib::_TypePtr ownerType = GetTypeFromVariant(owner);
+	_variant_t collection = ownerType->InvokeMember_3(
+		_bstr_t(collectionProp), kGetProperty,
+		nullptr, owner, nullptr);
+	mscorlib::_TypePtr collType = GetTypeFromVariant(collection);
+
+	_variant_t itemCopy(item);
+	SAFEARRAY* args = MakeArgArray({ &itemCopy });
+	collType->InvokeMember_3(
+		_bstr_t(L"Add"), kInvokeMethod,
+		nullptr, collection, args);
+	SafeArrayDestroy(args);
+}
+
 // ---------------------------------------------------------------------------
 // EventBridge — native thunk + managed shim
 // ---------------------------------------------------------------------------
@@ -103,11 +122,34 @@ void InitEventBridge()
 		L"delegate void Fn(IntPtr c);"
 		L"class P{Action a;public P(Action x){a=x;}"
 		L"public void I(object s,EventArgs e){a();}}"
-		L"public static void Add(Control c,string e,long fn,long ctx){"
+		L"public static void Add(object c,string e,long fn,long ctx){"
 		L"var d=(Fn)Marshal.GetDelegateForFunctionPointer(new IntPtr(fn),typeof(Fn));"
 		L"var p=new P(()=>d(new IntPtr(ctx)));var ei=c.GetType().GetEvent(e);"
-		L"ei.AddEventHandler(c,Delegate.CreateDelegate(ei.EventHandlerType,p,\"I\"));"
-		L"}}";
+		L"ei.AddEventHandler(c,Delegate.CreateDelegate(ei.EventHandlerType,p,typeof(P).GetMethod(\"I\")));}"
+		L"[UnmanagedFunctionPointer(CallingConvention.StdCall)]"
+		L"delegate void RowFn(int i,IntPtr b,int c,IntPtr x);"
+		L"public static void SetVirtual(ListView lv,int count,int cols,long fn,long ctx){"
+		L"var d=(RowFn)Marshal.GetDelegateForFunctionPointer(new IntPtr(fn),typeof(RowFn));"
+		L"lv.VirtualMode=true;lv.VirtualListSize=count;"
+		L"lv.RetrieveVirtualItem+=(s,e)=>{"
+		L"int sz=IntPtr.Size*cols;IntPtr buf=Marshal.AllocCoTaskMem(sz);"
+		L"for(int i=0;i<cols;i++)Marshal.WriteIntPtr(buf,i*IntPtr.Size,IntPtr.Zero);"
+		L"d(e.ItemIndex,buf,cols,new IntPtr(ctx));"
+		L"var t=new string[cols];"
+		L"for(int i=0;i<cols;i++){IntPtr b=Marshal.ReadIntPtr(buf,i*IntPtr.Size);"
+		L"t[i]=b!=IntPtr.Zero?Marshal.PtrToStringBSTR(b):\"\";"
+		L"if(b!=IntPtr.Zero)Marshal.FreeBSTR(b);}"
+		L"Marshal.FreeCoTaskMem(buf);e.Item=new ListViewItem(t);};}"
+		L"[UnmanagedFunctionPointer(CallingConvention.StdCall)]"
+		L"delegate IntPtr CellFn(int r,int c,IntPtr x);"
+		L"public static void SetDgvVirtual(DataGridView g,int rows,long fn,long ctx){"
+		L"var d=(CellFn)Marshal.GetDelegateForFunctionPointer(new IntPtr(fn),typeof(CellFn));"
+		L"g.VirtualMode=true;g.RowCount=rows;"
+		L"g.CellValueNeeded+=(s,e)=>{"
+		L"IntPtr b=d(e.RowIndex,e.ColumnIndex,new IntPtr(ctx));"
+		L"if(b!=IntPtr.Zero){e.Value=Marshal.PtrToStringBSTR(b);Marshal.FreeBSTR(b);}"
+		L"};}"
+		L"}";
 
 	auto& appDomain = AppDomain();
 
@@ -195,6 +237,71 @@ void AttachEvent(
 	SAFEARRAY* args = MakeArgArray({ &ctrlVar, &nameVar, &fnVar, &ctxVar });
 	g_eventBridgeType->InvokeMember_3(
 		_bstr_t(L"Add"), kStaticInvoke, nullptr, _variant_t(), args);
+	SafeArrayDestroy(args);
+}
+
+// ---------------------------------------------------------------------------
+// Virtual ListView support
+// ---------------------------------------------------------------------------
+static void __stdcall VirtualItemThunk(
+	int index, BSTR* texts, int colCount, void* context)
+{
+	auto* provider = static_cast<
+		std::function<std::vector<std::wstring>(int)>*>(context);
+	auto row = (*provider)(index);
+	for (int i = 0; i < colCount && i < static_cast<int>(row.size()); i++)
+		texts[i] = SysAllocString(row[i].c_str());
+}
+
+void AttachVirtualMode(
+	const _variant_t& listView,
+	int itemCount,
+	int columnCount,
+	std::function<std::vector<std::wstring>(int)>* provider)
+{
+	_variant_t lvVar(listView);
+	_variant_t countVar(static_cast<long>(itemCount));
+	_variant_t colsVar(static_cast<long>(columnCount));
+	_variant_t fnVar(static_cast<long long>(
+		reinterpret_cast<intptr_t>(&VirtualItemThunk)));
+	_variant_t ctxVar(static_cast<long long>(
+		reinterpret_cast<intptr_t>(provider)));
+
+	SAFEARRAY* args = MakeArgArray(
+		{ &lvVar, &countVar, &colsVar, &fnVar, &ctxVar });
+	g_eventBridgeType->InvokeMember_3(
+		_bstr_t(L"SetVirtual"), kStaticInvoke, nullptr, _variant_t(), args);
+	SafeArrayDestroy(args);
+}
+
+// ---------------------------------------------------------------------------
+// DataGridView virtual mode support
+// ---------------------------------------------------------------------------
+static BSTR __stdcall DgvCellThunk(int row, int col, void* context)
+{
+	auto* provider = static_cast<
+		std::function<std::wstring(int, int)>*>(context);
+	auto text = (*provider)(row, col);
+	return SysAllocString(text.c_str());
+}
+
+void AttachDgvVirtualMode(
+	const _variant_t& dgv,
+	int rowCount,
+	std::function<std::wstring(int, int)>* provider)
+{
+	_variant_t dgvVar(dgv);
+	_variant_t rowsVar(static_cast<long>(rowCount));
+	_variant_t fnVar(static_cast<long long>(
+		reinterpret_cast<intptr_t>(&DgvCellThunk)));
+	_variant_t ctxVar(static_cast<long long>(
+		reinterpret_cast<intptr_t>(provider)));
+
+	SAFEARRAY* args = MakeArgArray(
+		{ &dgvVar, &rowsVar, &fnVar, &ctxVar });
+	g_eventBridgeType->InvokeMember_3(
+		_bstr_t(L"SetDgvVirtual"), kStaticInvoke,
+		nullptr, _variant_t(), args);
 	SafeArrayDestroy(args);
 }
 

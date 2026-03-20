@@ -139,9 +139,22 @@
     <ClCompile Include="CppWinForms\Control.cpp" />
     <ClCompile Include="CppWinForms\Form.cpp" />
     <ClCompile Include="CppWinForms\Button.cpp" />
+    <ClCompile Include="CppWinForms\CheckBox.cpp" />
+    <ClCompile Include="CppWinForms\RadioButton.cpp" />
+    <ClCompile Include="CppWinForms\Panel.cpp" />
     <ClCompile Include="CppWinForms\MenuStrip.cpp" />
     <ClCompile Include="CppWinForms\ListView.cpp" />
+    <ClCompile Include="CppWinForms\DataGridView.cpp" />
+    <ClCompile Include="CppWinForms\DataGrid.cpp" />
+    <ClCompile Include="CppWinForms\Label.cpp" />
+    <ClCompile Include="CppWinForms\LinkLabel.cpp" />
+    <ClCompile Include="CppWinForms\ListBox.cpp" />
+    <ClCompile Include="CppWinForms\PictureBox.cpp" />
+    <ClCompile Include="CppWinForms\ProgressBar.cpp" />
     <ClCompile Include="CppWinForms\Application.cpp" />
+    <ClCompile Include="CppWinForms\SplitContainer.cpp" />
+    <ClCompile Include="CppWinForms\TabControl.cpp" />
+    <ClCompile Include="CppWinForms\ToolStrip.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -152,9 +165,22 @@
     <ClInclude Include="CppWinForms\Control.h" />
     <ClInclude Include="CppWinForms\Form.h" />
     <ClInclude Include="CppWinForms\Button.h" />
+    <ClInclude Include="CppWinForms\CheckBox.h" />
+    <ClInclude Include="CppWinForms\RadioButton.h" />
+    <ClInclude Include="CppWinForms\Panel.h" />
     <ClInclude Include="CppWinForms\MenuStrip.h" />
     <ClInclude Include="CppWinForms\ListView.h" />
+    <ClInclude Include="CppWinForms\DataGridView.h" />
+    <ClInclude Include="CppWinForms\DataGrid.h" />
+    <ClInclude Include="CppWinForms\Label.h" />
+    <ClInclude Include="CppWinForms\LinkLabel.h" />
+    <ClInclude Include="CppWinForms\ListBox.h" />
+    <ClInclude Include="CppWinForms\PictureBox.h" />
+    <ClInclude Include="CppWinForms\ProgressBar.h" />
     <ClInclude Include="CppWinForms\Application.h" />
+    <ClInclude Include="CppWinForms\SplitContainer.h" />
+    <ClInclude Include="CppWinForms\TabControl.h" />
+    <ClInclude Include="CppWinForms\ToolStrip.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

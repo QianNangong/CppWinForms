@@ -22,25 +22,6 @@ namespace
 		SafeArrayDestroy(args);
 		return item;
 	}
-
-	void AddToCollection(
-		const _variant_t& owner,
-		const wchar_t* collectionProp,
-		const _variant_t& item)
-	{
-		mscorlib::_TypePtr ownerType = __Internal::GetTypeFromVariant(owner);
-		_variant_t collection = ownerType->InvokeMember_3(
-			_bstr_t(collectionProp), __Internal::kGetProperty,
-			nullptr, owner, nullptr);
-		mscorlib::_TypePtr collType = __Internal::GetTypeFromVariant(collection);
-
-		_variant_t itemCopy(item);
-		SAFEARRAY* args = __Internal::MakeArgArray({ &itemCopy });
-		collType->InvokeMember_3(
-			_bstr_t(L"Add"), __Internal::kInvokeMethod,
-			nullptr, collection, args);
-		SafeArrayDestroy(args);
-	}
 }
 
 MenuStrip::MenuStrip()
@@ -57,10 +38,10 @@ void MenuStrip::AddMenu(
 	for (const wchar_t* text : itemTexts)
 	{
 		_variant_t subItem = CreateMenuItem(text);
-		AddToCollection(topItem, L"DropDownItems", subItem);
+		__Internal::AddToCollection(topItem, L"DropDownItems", subItem);
 	}
 
-	AddToCollection(variant_, L"Items", topItem);
+	__Internal::AddToCollection(variant_, L"Items", topItem);
 }
 
 } // namespace CppWinForms

@@ -2,6 +2,8 @@
 
 #include "../ClrInterop.h"
 #include <functional>
+#include <string>
+#include <vector>
 
 namespace CppWinForms::__Internal
 {
@@ -35,8 +37,21 @@ inline constexpr auto kStaticInvoke = static_cast<mscorlib::BindingFlags>(
 
 void InitEventBridge();
 void AttachEvent(
-	const _variant_t& control,
+	const _variant_t& target,
 	const wchar_t* eventName,
 	std::function<void()>* callback);
+void AddToCollection(
+	const _variant_t& owner,
+	const wchar_t* collectionProp,
+	const _variant_t& item);
+void AttachVirtualMode(
+	const _variant_t& listView,
+	int itemCount,
+	int columnCount,
+	std::function<std::vector<std::wstring>(int)>* provider);
+void AttachDgvVirtualMode(
+	const _variant_t& dgv,
+	int rowCount,
+	std::function<std::wstring(int, int)>* provider);
 
 } // namespace CppWinForms::__Internal

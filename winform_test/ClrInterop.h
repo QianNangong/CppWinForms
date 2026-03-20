@@ -21,9 +21,13 @@ inline constexpr wchar_t kFormsAssemblyPath[] =
 	L"C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\System.Windows.Forms.dll";
 inline constexpr wchar_t kSystemDllPath[] =
 	L"C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\System.dll";
+inline constexpr wchar_t kDataDllPath[] =
+	L"C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\System.Data.dll";
 #else
 inline constexpr wchar_t kFormsAssemblyPath[] =
 	L"C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\System.Windows.Forms.dll";
 inline constexpr wchar_t kSystemDllPath[] =
 	L"C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\System.dll";
+inline constexpr wchar_t kDataDllPath[] =
+	L"C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\System.Data.dll";
 #endif

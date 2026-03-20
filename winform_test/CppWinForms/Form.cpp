@@ -8,22 +8,6 @@ Form::Form()
 	InitControl(L"System.Windows.Forms.Form");
 }
 
-void Form::AddChild(Control& child)
-{
-	_variant_t controlsObj = type_->InvokeMember_3(
-		_bstr_t(L"Controls"), __Internal::kGetProperty,
-		nullptr, variant_, nullptr);
-	mscorlib::_TypePtr controlsType =
-		__Internal::GetTypeFromVariant(controlsObj);
-
-	_variant_t childVar = child.variant();
-	SAFEARRAY* args = __Internal::MakeArgArray({ &childVar });
-	controlsType->InvokeMember_3(
-		_bstr_t(L"Add"), __Internal::kInvokeMethod,
-		nullptr, controlsObj, args);
-	SafeArrayDestroy(args);
-}
-
 void Form::CenterChild(Control& child)
 {
 	_variant_t clientSize = type_->InvokeMember_3(

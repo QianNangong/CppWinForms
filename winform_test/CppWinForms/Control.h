@@ -48,6 +48,8 @@ public:
 	void    put_Dock(long v)    { PutLongProp(L"Dock", v); }
 
 	void AddEventHandler(const wchar_t* eventName, std::function<void()> callback);
+	void AddChild(Control& child);
+	void Attach(const _variant_t& managedObject);
 
 	IDispatch*             dispatch() const { return dispatch_; }
 	const _variant_t&      variant() const  { return variant_; }
@@ -63,6 +65,8 @@ protected:
 
 	long GetLongProp(const wchar_t* name) const;
 	void PutLongProp(const wchar_t* name, long value);
+	bool GetBoolProp(const wchar_t* name) const;
+	void PutBoolProp(const wchar_t* name, bool value);
 
 private:
 	std::vector<std::unique_ptr<std::function<void()>>> callbacks_;

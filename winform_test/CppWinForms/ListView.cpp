@@ -86,4 +86,20 @@ void ListView::AddRow(std::initializer_list<const wchar_t*> cells)
 	}
 }
 
+void ListView::SetVirtualMode(int itemCount, VirtualItemProvider provider)
+{
+	_variant_t columns = type_->InvokeMember_3(
+		_bstr_t(L"Columns"), __Internal::kGetProperty,
+		nullptr, variant_, nullptr);
+	mscorlib::_TypePtr colsType = __Internal::GetTypeFromVariant(columns);
+	_variant_t countVar = colsType->InvokeMember_3(
+		_bstr_t(L"Count"), __Internal::kGetProperty,
+		nullptr, columns, nullptr);
+	int colCount = static_cast<long>(countVar);
+
+	virtualProvider_ = std::make_unique<VirtualItemProvider>(std::move(provider));
+	__Internal::AttachVirtualMode(
+		variant_, itemCount, colCount, virtualProvider_.get());
+}
+
 } // namespace CppWinForms
